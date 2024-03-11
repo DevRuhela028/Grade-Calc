@@ -1,58 +1,64 @@
-const credit = document.querySelectorAll('.grid-item2');
-const credit_value = [];
-const grade = document.querySelectorAll('.grid-item');
-const grade_value = [];
+const creditValues = [];
+const gradeValues = [];
 let flag = false;
-console.log(grade_value)
-function handleClick(){
-    if(flag == true) return
-    credit.forEach(el => {
-    credit_value.push(el.firstChild.value);
-    })
-    console.log(credit_value)
-    grade.forEach(el => {
-    grade_value.push(el.firstChild.value);
-    })
-    console.log(grade_value)
-    let total = 0;
-    for(let i = 0 ; i < credit_value.length ; i++){
-        total += Number(credit_value[i]);
+function updateValues() {
+    creditValues.length = 0;
+    gradeValues.length = 0;
+    const creditInputs = document.querySelectorAll('.grid-item2 input');
+    const gradeInputs = document.querySelectorAll('.grid-item input');
+    creditInputs.forEach((el) => {
+        creditValues.push(Number(el.value));
+    });
+    gradeInputs.forEach((el) => {
+        gradeValues.push(Number(el.value));
+    });
+}
+
+function handleClick() {
+    updateValues();
+    if (flag) return;
+    const totalCredits = creditValues.reduce((total, value) => total + value, 0);
+    const totalWeightedGradePoints = gradeValues.reduce((total, grade, index) => {
+        return total + grade * creditValues[index];
+    }, 0);
+    const cgpa = totalWeightedGradePoints / totalCredits;
+    const result = cgpa < 4 ? 'FAIL' : 'PASS';
+    let letterGrade;
+    if (cgpa < 5) letterGrade = 'F';
+    else if (cgpa < 6) letterGrade = 'D';
+    else if (cgpa < 7) letterGrade = 'C';
+    else if (cgpa < 8) letterGrade = 'B';
+    else if (cgpa < 9) letterGrade = 'B+';
+    else if (cgpa >= 9 && cgpa < 10) letterGrade = 'A';
+    else if (cgpa === 10) letterGrade = 'A+';
+    const resultContainer = document.getElementById('dis');
+    const resultParagraph = resultContainer.querySelector('p');
+
+    if (resultParagraph) {
+        resultParagraph.innerText = `Your Final CGPA is: ${cgpa.toFixed(2)}, Grade: ${letterGrade}, Result: ${result}`;
+    } else {
+        const newResultParagraph = document.createElement('p');
+        newResultParagraph.innerText = `Your Final CGPA is: ${cgpa.toFixed(2)}, Grade: ${letterGrade}, Result: ${result}`;
+        
+        resultContainer.appendChild(newResultParagraph);
     }
-    console.log(total)  
-    
-    let got = 0;
-    for(let i = 0 ; i < credit_value.length ; i++){
-        got += credit_value[i]*grade_value[i];
-    }
-    console.log(got)  
-    console.log(got/total)
-    var a = got/total
-    var ch
-    if(got/total < 4){
-        ch = "FAIL"
-    }
-    else ch = "PASS"
-    var gr
-    if(a < 5) gr = "F"
-    else if(a < 6) gr = "D"
-    else if(a < 7) gr = "C"
-    else if(a < 8) gr = "B"
-    else if(a < 9) gr = "B+"
-    else if(a >= 9 && a < 10) gr = "A"
-    else if(a == 10) gr = "A+"
-    const ele = document.getElementById('dis');
-    const ele1 = document.createElement('p');
-    ele1.innerText = "Your Final CGPA is : " + got/total + " , " + gr
-    ele.appendChild(ele1)
-    ele.style.border = "1px solid turquoise"
-    ele.style.borderRadius = "10px"
-    ele.style.height = "50px"
-    ele.style.width = "500px"
-    ele.style.padding = "15px"
-    ele.style.margin = "30px"
-    ele.style.display = "flex"
-    ele.style.justifyContent = "center"
-    ele.style.alignItems = "center"
-    ele.style.boxShadow = "black 0.4rem 0.5rem 0.5rem 0.25rem"
+    resultContainer.style.borderRadius = '10px';
+    resultContainer.style.height = 'fit-content';
+    resultContainer.style.width = 'fit-content';
+    resultContainer.style.padding = '15px';
+    resultContainer.style.margin = '30px';
+    resultContainer.style.display = 'flex';
+    resultContainer.style.flexDirection = 'column';
+    resultContainer.style.justifyContent = 'center';
+    resultContainer.style.alignItems = 'center';
+    resultContainer.style.boxShadow = '0.1rem 0.1rem 0.8rem rgba(0, 0, 0, 0.6)';
+    resultContainer.style.border = 'none';
     flag = true;
 }
+
+
+document.querySelectorAll('.grid-item2 input, .grid-item input').forEach((input) => {
+    input.addEventListener('input', () => {
+        flag = false;
+    });
+});
